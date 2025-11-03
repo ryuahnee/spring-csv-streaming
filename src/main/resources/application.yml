@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: streaming
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+  sql:
+    init:
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+
+
+  # JPA ??
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+# MyBatis ??
+mybatis:
+  mapper-locations: classpath:repository/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+# ?? ??
+logging:
+  level:
+    com.example.excel: DEBUG
+    org.apache.ibatis: DEBUG
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%logger{36}] - %msg%n"
+
+# ?? ??
+server:
+  port: 8080
+
+

@@ -1,0 +1,2 @@
+###memory TEST###
+GET http://localhost:8080/test/memory
