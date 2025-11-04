@@ -16,7 +16,7 @@ spring:
       data-locations: classpath:data.sql
 
 
-  # JPA ??
+  # JPA
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -25,13 +25,13 @@ spring:
       hibernate:
         format_sql: true
 
-# MyBatis ??
+# MyBatis 설정
 mybatis:
   mapper-locations: classpath:repository/**/*.xml
   configuration:
     map-underscore-to-camel-case: true
 
-# ?? ??
+# 로깅 설정
 logging:
   level:
     com.example.excel: DEBUG
@@ -40,7 +40,7 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%logger{36}] - %msg%n"
 
-# ?? ??
+# 서버 설정
 server:
   port: 8080
 

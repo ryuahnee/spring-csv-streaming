@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.streaming.repository.UserMapper">
+
+    <resultMap id="UserResultMap" type="com.example.streaming.dto.UserDto">
+        <id property="id" column="id" />
+        <result property="username" column="username" />
+        <result property="email" column="email" />
+        <result property="age" column="age" />
+        <result property="department" column="department" />
+        <result property="createdAt" column="created_at" />
+        <result property="active" column="active" />
+    </resultMap>
+
+    <!-- 일반 조회-->
+    <select id="findAllUsers" resultMap="UserResultMap">
+        SELECT
+            id,
+            username,
+            email,
+            age,
+            department,
+            created_at,
+            active
+        FROM users
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 스트리밍 조회 -->
+    <select id="findAllUsersStreaming" resultMap="UserResultMap">
+        SELECT
+            id,
+            username,
+            email,
+            age,
+            department,
+            created_at,
+            active
+        FROM users
+        ORDER BY created_at DESC
+    </select>
+
+</mapper>
