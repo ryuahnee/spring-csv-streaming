@@ -1,2 +1,63 @@
-###memory TEST###
+# OOM 문제 해결 과정 테스트용 HTTP 요청들
+# 기술블로그 작성을 위한 성능 비교 테스트
+
+###========== 1단계: 데이터 준비 (충분한 메모리로 실행) ==========###
+
+# 50만건 테스트 데이터 생성
+GET http://localhost:8080/test/data/setup
+
+###
+
+# 데이터 생성 확인
+GET http://localhost:8080/test/user
+
+###========== 2단계: 메모리 상태 확인 ==========###
+
+# 1. 기본 메모리 상태 확인
 GET http://localhost:8080/test/memory
+
+###
+
+# 2. 실시간 메모리 모니터링 (JSON 형태)
+GET http://localhost:8080/test/memory/status
+
+###========== 3단계: OOM 재현 테스트 (메모리 제한 필요) ==========###
+# 애플리케이션을 메모리 제한으로 재시작: 
+# java -jar -Xms64m -Xmx256m build/libs/streaming-0.0.1-SNAPSHOT.jar
+
+# 🔴 기존 방식: XSSFWorkbook + 전체 데이터 로드 (OOM 재현용)
+# 경고: 50만건 조회 시 OutOfMemoryError 발생 예상
+GET http://localhost:8080/test/excel/traditional
+
+###
+
+# ✅ 스트리밍 방식: SXSSFWorkbook + ResultHandler (최적화)
+# 같은 메모리 제한에서도 안정적 처리 예상
+GET http://localhost:8080/test/excel/streaming
+
+###========== 레거시 테스트 (기존 코드) ==========###
+
+# 기존 테스트 엔드포인트 (호환성 유지)
+GET http://localhost:8080/test/payments/excel
+
+###
+
+# 🎯 블로그용 테스트 시나리오:
+# 
+# Phase 1 - 데이터 준비 (정상 메모리):
+# 1. java -jar build/libs/streaming-0.0.1-SNAPSHOT.jar 
+# 2. GET /test/data/setup (50만건 생성)
+# 3. 애플리케이션 종료
+#
+# Phase 2 - OOM 재현 (메모리 제한):  
+# 1. java -jar -Xms64m -Xmx256m build/libs/streaming-0.0.1-SNAPSHOT.jar
+# 2. GET /test/excel/traditional (OOM 발생 예상)
+# 3. GET /test/excel/streaming (정상 처리 예상)
+# 4. 로그에서 메모리 사용량 비교 분석
+#
+###========== JVM 메모리 설정 ==========###
+# 
+# 정상 실행: java -jar build/libs/streaming-0.0.1-SNAPSHOT.jar
+# OOM 테스트: java -jar -Xms64m -Xmx256m build/libs/streaming-0.0.1-SNAPSHOT.jar
+#
+###

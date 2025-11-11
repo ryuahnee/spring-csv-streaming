@@ -13,8 +13,8 @@ spring:
   sql:
     init:
       schema-locations: classpath:schema.sql
-      data-locations: classpath:data.sql
-
+      # data-locations: classpath:data.sql  # 초기 데이터 로드 비활성화
+      mode: always
 
   # JPA
   jpa:
@@ -43,5 +43,3 @@ logging:
 # 서버 설정
 server:
   port: 8080
-
-

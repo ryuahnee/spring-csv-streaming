@@ -1,4 +1,4 @@
--- 대량 더미 데이터 생성 (10만건)
+-- 대량 더미 데이터 생성 (10만건) - OOM 테스트용
 -- H2 데이터베이스의 SYSTEM_RANGE 함수 사용
 
 INSERT INTO users (username, email, age, department, created_at, active)
@@ -15,4 +15,4 @@ SELECT
         END, -- 부서 순환
     DATEADD('DAY', -MOD(x, 365), CURRENT_TIMESTAMP), -- 최근 1년간 랜덤 날짜
     CASE WHEN MOD(x, 10) = 0 THEN FALSE ELSE TRUE END -- 10%는 비활성
-FROM SYSTEM_RANGE(1, 100000); -- 10만건 생성
+FROM SYSTEM_RANGE(1, 10000); -- 10만건으로 조정

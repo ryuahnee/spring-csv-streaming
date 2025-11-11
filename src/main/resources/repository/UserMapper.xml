@@ -41,5 +41,29 @@
         FROM users
         ORDER BY created_at DESC
     </select>
+    
+    <!-- 대량 데이터 생성 -->
+    <insert id="createLargeDataset">
+        INSERT INTO users (username, email, age, department, created_at, active)
+        SELECT
+            CONCAT('user_', LPAD(x, 6, '0')),
+            CONCAT('user', x, '@company.com'), 
+            20 + MOD(x, 40),
+            CASE
+                WHEN MOD(x, 5) = 0 THEN 'Engineering'
+                WHEN MOD(x, 5) = 1 THEN 'Marketing'
+                WHEN MOD(x, 5) = 2 THEN 'Sales'
+                WHEN MOD(x, 5) = 3 THEN 'HR'
+                ELSE 'Finance'
+                END,
+            DATEADD('DAY', -MOD(x, 365), CURRENT_TIMESTAMP),
+            CASE WHEN MOD(x, 10) = 0 THEN FALSE ELSE TRUE END
+        FROM SYSTEM_RANGE(1, 500000)  <!-- 50만건 -->
+    </insert>
+    
+    <!-- 전체 데이터 개수 조회 -->
+    <select id="countAllUsers" resultType="int">
+        SELECT COUNT(*) FROM users
+    </select>
 
 </mapper>
