@@ -7,6 +7,7 @@ import com.example.streaming.util.ExcelUtil;
 import com.example.streaming.util.MemoryMonitor;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,7 +35,7 @@ public class TestController {
         List<UserDto> users = mapper.findAllUsers(); // 10만건!
 
         // Excel 생성
-        ExcelUtil.createExcel(users, response);
+        ExcelUtil.createExcelWithSXSSF(users, response);
     }
 
 
@@ -65,26 +66,27 @@ public class TestController {
     public void downloadTraditionalExcel(HttpServletResponse response) {
         memoryMonitor.logMemoryStatus("=== 기존 방식 Excel 생성 시작 ===");
         long startTime = System.currentTimeMillis();
-        
+
         try {
-            // 위험: 전체 데이터를 한번에 메모리에 로드
+            // List 기반 조회
             List<UserDto> users = mapper.findAllUsers();
+
             log.info("전체 데이터 로드 완료: {}건", users.size());
             memoryMonitor.logMemoryStatus("전체 데이터 로드 후");
 
-            // Excel 생성 (메모리 집약적)
-            ExcelUtil.createExcel(users, response);
-            
+            // SXSSF 기반 엑셀 생성
+            ExcelUtil.createExcelWithSXSSF(users, response);
+
             long endTime = System.currentTimeMillis();
-            log.info("=== 기존 방식 완료 - 처리시간: {}ms ===", (endTime - startTime));
-            memoryMonitor.logMemoryStatus("=== 기존 방식 Excel 생성 완료 ===");
+            log.info("=== 기존 방식 (List + SXSSF) 완료 - 처리시간: {}ms ===", (endTime - startTime));
+            memoryMonitor.logMemoryStatus("=== 기존 방식 (List + SXSSF) Excel 생성 완료 ===");
 
         } catch (OutOfMemoryError e) {
-            log.error("  OOM 발생! 예상된 결과입니다.", e);
-            throw new RuntimeException("메모리 부족으로 Excel 생성 실패 (예상된 결과)", e);
+            log.error("OOM 발생! 예상된 결과입니다.", e);
+            throw new RuntimeException("메모리 부족으로 SXSSF Excel 생성 실패", e);
         } catch (Exception e) {
-            log.error("기존 방식 Excel 생성 실패", e);
-            throw new RuntimeException("Excel 생성 실패", e);
+            log.error("SXSSF Excel 생성 실패", e);
+            throw new RuntimeException("SXSSF Excel 생성 실패", e);
         }
     }
 
@@ -96,15 +98,15 @@ public class TestController {
     public void downloadStreamingExcel(HttpServletResponse response) {
         memoryMonitor.logMemoryStatus("=== 스트리밍 방식 Excel 생성 시작 ===");
         long startTime = System.currentTimeMillis();
-        
+
         try {
             // 스트리밍 서비스 호출
             streamingExcelService.createStreamingExcel(response);
-            
+
             long endTime = System.currentTimeMillis();
             log.info("=== 스트리밍 방식 완료 - 처리시간: {}ms ===", (endTime - startTime));
             memoryMonitor.logMemoryStatus("=== 스트리밍 방식 Excel 생성 완료 ===");
-            
+
         } catch (Exception e) {
             log.error("스트리밍 방식 Excel 생성 실패", e);
             throw new RuntimeException("스트리밍 Excel 생성 실패", e);
@@ -161,5 +163,12 @@ public class TestController {
             log.error("테스트 데이터 생성 실패", e);
             return "데이터 생성 실패: " + e.getMessage();
         }
+    }
+    @GetMapping("/gc")
+    public ResponseEntity<String> forceGC() throws InterruptedException {
+        System.gc();
+        Thread.sleep(1000); // GC 완료 대기
+        long currentMemory = memoryMonitor.getCurrentMemoryUsageMB();
+        return ResponseEntity.ok("GC 완료 - 현재 메모리: " + currentMemory + "MB");
     }
 }

@@ -13,5 +13,9 @@ public interface UserMapper {
 
     // 스트리밍용 메소드 - void 리턴, ResultHandler 파라미터
     void findAllUsersStreaming(ResultHandler<UserDto> handler);
+    
+    // 데이터 관리용 메소드
+    void createLargeDataset();
+    int countAllUsers();
 
 }

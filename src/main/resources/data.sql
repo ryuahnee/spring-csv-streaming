@@ -15,4 +15,4 @@ SELECT
         END, -- 부서 순환
     DATEADD('DAY', -MOD(x, 365), CURRENT_TIMESTAMP), -- 최근 1년간 랜덤 날짜
     CASE WHEN MOD(x, 10) = 0 THEN FALSE ELSE TRUE END -- 10%는 비활성
-FROM SYSTEM_RANGE(1, 10000); -- 10만건으로 조정
+FROM SYSTEM_RANGE(1, 1000000); -- 10만건으로 조정
